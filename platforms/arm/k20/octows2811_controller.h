@@ -37,7 +37,7 @@ public:
     uint32_t raw[2];
   } Lines;
 
-  virtual void showPixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
+  void preparePixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
     _init(pixels.size());
 
     uint8_t *pData = drawbuffer;
@@ -53,7 +53,14 @@ public:
       pixels.stepDithering();
       pixels.advanceData();
     }
+  }
 
+  virtual void showPixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
+    preparePixels(pixels);
+    onlyShow();
+  }
+
+  void onlyShow() {
     pocto->show();
   }
 
