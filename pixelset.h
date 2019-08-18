@@ -38,7 +38,7 @@ public:
 
   /// Get the size of this set
   /// @return the size of the set
-  int size() { return abs(len); }
+  unsigned int size() { return abs(len); }
 
   /// Whether or not this set goes backwards
   /// @return whether or not the set is backwards
