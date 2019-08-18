@@ -38,7 +38,7 @@ public:
 
   /// Get the size of this set
   /// @return the size of the set
-  unsigned int size() { return abs(len); }
+  int size() { return abs(len); }
 
   /// Whether or not this set goes backwards
   /// @return whether or not the set is backwards
@@ -57,7 +57,7 @@ public:
   /// result in a reverse ordering for many functions (useful for mirroring)
   /// @param start the first element from this set for the new subset
   /// @param end the last element for the new subset
-  inline CPixelView operator()(int start, int end) { return CPixelView(leds, start, end); }
+  inline CPixelView operator()(int start, int end) { if(dir & 0x80) { return CPixelView(leds + len + 1, -len - end - 1, -len - start - 1); } else { return CPixelView(leds, start, end); }}
 
   /// Access an inclusive subset of the leds in this set, starting from the first.
   /// @param end the last element for the new subset
