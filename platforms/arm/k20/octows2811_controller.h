@@ -10,12 +10,11 @@ FASTLED_NAMESPACE_BEGIN
 template<EOrder RGB_ORDER = GRB, uint8_t CHIP = WS2811_800kHz>
 class COctoWS2811Controller : public CPixelLEDController<RGB_ORDER, 8, 0xFF> {
   OctoWS2811  *pocto;
-  uint8_t *drawbuffer,*framebuffer;
+  alignas(4) uint8_t drawbuffer[MAX_LEDS_PER_STRIP*8*3];
+  alignas(4) uint8_t framebuffer[MAX_LEDS_PER_STRIP*8*3];
 
   void _init(int nLeds) {
     if(pocto == NULL) {
-      drawbuffer = (uint8_t*)malloc(nLeds * 8 * 3);
-      framebuffer = (uint8_t*)malloc(nLeds * 8 * 3);
 
       // byte ordering is handled in show by the pixel controller
       int config = WS2811_RGB;
@@ -37,7 +36,7 @@ public:
     uint32_t raw[2];
   } Lines;
 
-  void preparePixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
+  virtual void showPixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
     _init(pixels.size());
 
     uint8_t *pData = drawbuffer;
@@ -53,14 +52,6 @@ public:
       pixels.stepDithering();
       pixels.advanceData();
     }
-  }
-
-  virtual void showPixels(PixelController<RGB_ORDER, 8, 0xFF> & pixels) {
-    preparePixels(pixels);
-    onlyShow();
-  }
-
-  void onlyShow() {
     pocto->show();
   }
 
