@@ -10,8 +10,8 @@ FASTLED_NAMESPACE_BEGIN
 template<EOrder RGB_ORDER = GRB, uint8_t CHIP = WS2811_800kHz>
 class COctoWS2811Controller : public CPixelLEDController<RGB_ORDER, 8, 0xFF> {
   OctoWS2811  *pocto;
-  alignas(4) uint8_t drawbuffer[MAX_LEDS_PER_STRIP*8*3];
-  alignas(4) uint8_t framebuffer[MAX_LEDS_PER_STRIP*8*3];
+  uint8_t drawbuffer[MAX_LEDS_PER_STRIP*8*3];
+  uint8_t framebuffer[MAX_LEDS_PER_STRIP*8*3];
 
   void _init(int nLeds) {
     if(pocto == NULL) {
