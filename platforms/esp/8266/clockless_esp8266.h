@@ -71,8 +71,11 @@ protected:
 	// This method is made static to force making register Y available to use for data on AVR - if the method is non-static, then
 	// gcc will use register Y for the this pointer.
 	static uint32_t ICACHE_RAM_ATTR showRGBInternal(PixelController<RGB_ORDER> pixels) {
+        PixelController<RGB_ORDER> pixels2 = pixels;
+        pixels2.mData = pixels2.mData + (pixels2.mLen * pixels2.mAdvance);
 		// Setup the pixel controller and load/scale the first byte
 		pixels.preStepFirstByteDithering();
+		pixels2.preStepFirstByteDithering();
 		register uint32_t b = pixels.loadAndScale0();
     pixels.preStepFirstByteDithering();
 		os_intr_lock();
@@ -87,9 +90,14 @@ protected:
 			writeBits<8+XTRA0>(last_mark, b);
 			b = pixels.loadAndScale2();
 
+			// Write third byte, read 4th byte
+			writeBits<8+XTRA0>(last_mark, b);
+			b = pixels2.loadAndScale0();
+
 			// Write third byte, read 1st byte of next pixel
 			writeBits<8+XTRA0>(last_mark, b);
-      b = pixels.advanceAndLoadAndScale0();
+            b = pixels.advanceAndLoadAndScale0();
+            pixels2.advanceData();
 
 			#if (FASTLED_ALLOW_INTERRUPTS == 1)
 			os_intr_unlock();
