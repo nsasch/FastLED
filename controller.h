@@ -13,11 +13,12 @@
 FASTLED_NAMESPACE_BEGIN
 
 #define RO(X) RGB_BYTE(RGB_ORDER, X)
-#define RGB_BYTE(RO,X) (((RO)>>(3*(2-(X)))) & 0x3)
+#define RGB_BYTE(RO,X) (((RO)>>(3*(3-(X)))) & 0x3)
 
-#define RGB_BYTE0(RO) ((RO>>6) & 0x3)
-#define RGB_BYTE1(RO) ((RO>>3) & 0x3)
-#define RGB_BYTE2(RO) ((RO) & 0x3)
+#define RGB_BYTE0(RO) ((RO>>9) & 0x3)
+#define RGB_BYTE1(RO) ((RO>>6) & 0x3)
+#define RGB_BYTE2(RO) ((RO>>3) & 0x3)
+#define RGB_BYTE3(RO) ((RO) & 0x3)
 
 // operator byte *(struct CRGB[] arr) { return (byte*)arr; }
 
@@ -149,9 +150,9 @@ public:
 
     static CRGB computeAdjustment(uint8_t scale, const CRGB & colorCorrection, const CRGB & colorTemperature) {
       #if defined(NO_CORRECTION) && (NO_CORRECTION==1)
-              return CRGB(scale,scale,scale);
+              return CRGB(scale,scale,scale,scale);
       #else
-              CRGB adj(0,0,0);
+              CRGB adj(0,0,0,scale);
 
               if(scale > 0) {
                   for(uint8_t i = 0; i < 3; i++) {
@@ -178,8 +179,8 @@ template<EOrder RGB_ORDER, int LANES=1, uint32_t MASK=0xFFFFFFFF>
 struct PixelController {
         const uint8_t *mData;
         int mLen,mLenRemaining;
-        uint8_t d[3];
-        uint8_t e[3];
+        uint8_t d[4];
+        uint8_t e[4];
         CRGB mScale;
         int8_t mAdvance;
         int mOffsets[LANES];
@@ -188,9 +189,11 @@ struct PixelController {
             d[0] = other.d[0];
             d[1] = other.d[1];
             d[2] = other.d[2];
+            d[3] = other.d[3];
             e[0] = other.e[0];
             e[1] = other.e[1];
             e[2] = other.e[2];
+            e[3] = other.e[3];
             mData = other.mData;
             mScale = other.mScale;
             mAdvance = other.mAdvance;
@@ -210,13 +213,13 @@ struct PixelController {
         PixelController(const uint8_t *d, int len, CRGB & s, EDitherMode dither = BINARY_DITHER, bool advance=true, uint8_t skip=0) : mData(d), mLen(len), mLenRemaining(len), mScale(s) {
             enable_dithering(dither);
             mData += skip;
-            mAdvance = (advance) ? 3+skip : 0;
+            mAdvance = (advance) ? 4+skip : 0;
             initOffsets(len);
         }
 
         PixelController(const CRGB *d, int len, CRGB & s, EDitherMode dither = BINARY_DITHER) : mData((const uint8_t*)d), mLen(len), mLenRemaining(len), mScale(s) {
             enable_dithering(dither);
-            mAdvance = 3;
+            mAdvance = 4;
             initOffsets(len);
         }
 
@@ -293,7 +296,7 @@ struct PixelController {
             // actual dithering.
 
             // Setup the initial D and E values
-            for(int i = 0; i < 3; i++) {
+            for(int i = 0; i < 4; i++) {
                     uint8_t s = mScale.raw[i];
                     e[i] = s ? (256/s) + 1 : 0;
                     d[i] = scale8(Q, e[i]);
@@ -314,7 +317,7 @@ struct PixelController {
         void enable_dithering(EDitherMode dither) {
             switch(dither) {
                 case BINARY_DITHER: init_binary_dithering(); break;
-                default: d[0]=d[1]=d[2]=e[0]=e[1]=e[2]=0; break;
+                default: d[0]=d[1]=d[2]=d[3]=e[0]=e[1]=e[2]=e[3]=0; break;
             }
         }
 
@@ -333,6 +336,7 @@ struct PixelController {
                 d[0] = e[0] - d[0];
                 d[1] = e[1] - d[1];
                 d[2] = e[2] - d[2];
+                d[3] = e[3] - d[3];
         }
 
         // Some chipsets pre-cycle the first byte, which means we want to cycle byte 0's dithering separately
@@ -366,24 +370,28 @@ struct PixelController {
         __attribute__((always_inline)) inline uint8_t loadAndScale0(int lane, uint8_t scale) { return loadAndScale<0>(*this, lane, scale); }
         __attribute__((always_inline)) inline uint8_t loadAndScale1(int lane, uint8_t scale) { return loadAndScale<1>(*this, lane, scale); }
         __attribute__((always_inline)) inline uint8_t loadAndScale2(int lane, uint8_t scale) { return loadAndScale<2>(*this, lane, scale); }
+        __attribute__((always_inline)) inline uint8_t loadAndScale3(int lane, uint8_t scale) { return loadAndScale<3>(*this, lane, scale); }
         __attribute__((always_inline)) inline uint8_t advanceAndLoadAndScale0(int lane, uint8_t scale) { return advanceAndLoadAndScale<0>(*this, lane, scale); }
         __attribute__((always_inline)) inline uint8_t stepAdvanceAndLoadAndScale0(int lane, uint8_t scale) { stepDithering(); return advanceAndLoadAndScale<0>(*this, lane, scale); }
 
         __attribute__((always_inline)) inline uint8_t loadAndScale0(int lane) { return loadAndScale<0>(*this, lane); }
         __attribute__((always_inline)) inline uint8_t loadAndScale1(int lane) { return loadAndScale<1>(*this, lane); }
         __attribute__((always_inline)) inline uint8_t loadAndScale2(int lane) { return loadAndScale<2>(*this, lane); }
+        __attribute__((always_inline)) inline uint8_t loadAndScale3(int lane) { return loadAndScale<3>(*this, lane); }
         __attribute__((always_inline)) inline uint8_t advanceAndLoadAndScale0(int lane) { return advanceAndLoadAndScale<0>(*this, lane); }
         __attribute__((always_inline)) inline uint8_t stepAdvanceAndLoadAndScale0(int lane) { stepDithering(); return advanceAndLoadAndScale<0>(*this, lane); }
 
         __attribute__((always_inline)) inline uint8_t loadAndScale0() { return loadAndScale<0>(*this); }
         __attribute__((always_inline)) inline uint8_t loadAndScale1() { return loadAndScale<1>(*this); }
         __attribute__((always_inline)) inline uint8_t loadAndScale2() { return loadAndScale<2>(*this); }
+        __attribute__((always_inline)) inline uint8_t loadAndScale3() { return loadAndScale<3>(*this); }
         __attribute__((always_inline)) inline uint8_t advanceAndLoadAndScale0() { return advanceAndLoadAndScale<0>(*this); }
         __attribute__((always_inline)) inline uint8_t stepAdvanceAndLoadAndScale0() { stepDithering(); return advanceAndLoadAndScale<0>(*this); }
 
         __attribute__((always_inline)) inline uint8_t getScale0() { return getscale<0>(*this); }
         __attribute__((always_inline)) inline uint8_t getScale1() { return getscale<1>(*this); }
         __attribute__((always_inline)) inline uint8_t getScale2() { return getscale<2>(*this); }
+        __attribute__((always_inline)) inline uint8_t getScale3() { return getscale<3>(*this); }
 };
 
 template<EOrder RGB_ORDER, int LANES=1, uint32_t MASK=0xFFFFFFFF> class CPixelLEDController : public CLEDController {
