@@ -57,7 +57,7 @@ public:
   /// result in a reverse ordering for many functions (useful for mirroring)
   /// @param start the first element from this set for the new subset
   /// @param end the last element for the new subset
-  inline CPixelView operator()(int start, int end) { return CPixelView(leds, start, end); }
+  inline CPixelView operator()(int start, int end) { if(dir & 0x80) { return CPixelView(leds + len + 1, -len - end - 1, -len - start - 1); } else { return CPixelView(leds, start, end); }}
 
   /// Access an inclusive subset of the leds in this set, starting from the first.
   /// @param end the last element for the new subset
@@ -167,7 +167,7 @@ public:
     if(dir >= 0) {
       ::fill_rainbow(leds,len,initialhue,deltahue);
     } else {
-      ::fill_rainbow(leds+len+1,-len,initialhue,deltahue);
+      ::fill_rainbow(leds+len+1,-len,initialhue-deltahue*len,-deltahue);
     }
     return *this;
   }
