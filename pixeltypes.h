@@ -518,6 +518,7 @@ struct CRGB {
         uint8_t max = red;
         if( green > max) max = green;
         if( blue > max) max = blue;
+        if( white > max) max = white;
 
         // stop div/0 when color is black
         if(max > 0) {
@@ -525,6 +526,7 @@ struct CRGB {
             red =   (red   * factor) / 256;
             green = (green * factor) / 256;
             blue =  (blue  * factor) / 256;
+            white =  (white * factor) / 256;
         }
     }
 
@@ -904,12 +906,12 @@ inline CRGB operator%( const CRGB& p1, uint8_t d)
 /// order the controller should send RGB data out in, RGB being the default
 /// ordering.
 enum EOrder {
-	RGB=0123,
-	RBG=0213,
-	GRB=1023,
-	GBR=1203,
-	BRG=2013,
-	BGR=2103
+	RGB=00123,
+	RBG=00213,
+	GRB=01023,
+	GBR=01203,
+	BRG=02013,
+	BGR=02103
 };
 
 FASTLED_NAMESPACE_END
