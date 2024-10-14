@@ -13,6 +13,7 @@ class COctoWS2811Controller : public CPixelLEDController<RGB_ORDER, 8, 0xFF> {
   uint8_t *drawbuffer,*framebuffer;
 
   void _init(int nLeds) {
+    byte pinList[8] = {24, 25, 26, 27, 28, 29, 30};
     if(pocto == NULL) {
       drawbuffer = (uint8_t*)malloc(nLeds * 8 * 3);
       framebuffer = (uint8_t*)malloc(nLeds * 8 * 3);
@@ -21,7 +22,7 @@ class COctoWS2811Controller : public CPixelLEDController<RGB_ORDER, 8, 0xFF> {
       int config = WS2811_RGB;
       config |= CHIP;
 
-      pocto = new OctoWS2811(nLeds, framebuffer, drawbuffer, config);
+      pocto = new OctoWS2811(nLeds, framebuffer, drawbuffer, config, 8, pinList);
 
       pocto->begin();
     }
