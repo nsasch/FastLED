@@ -212,7 +212,7 @@ public:
         if(dir >= 0) {
             ::fill_rainbow(leds,len,initialhue,deltahue);
         } else {
-            ::fill_rainbow(leds+len+1,-len,initialhue-deltahue*len,-deltahue);
+            ::fill_rainbow(leds + len + 1, -len, initialhue - deltahue * len, -deltahue);
         }
         return *this;
     }

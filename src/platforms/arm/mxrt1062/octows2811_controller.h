@@ -7,13 +7,13 @@
 
 FASTLED_NAMESPACE_BEGIN
 
-template<EOrder RGB_ORDER = GRB, uint8_t CHIP = WS2811_800kHz>
+template<EOrder RGB_ORDER = GRB, uint8_t CHIP = WS2811_800kHz, byte DATA_PIN0 = 24, byte DATA_PIN1 = 25, byte DATA_PIN2 = 26, byte DATA_PIN3 = 27, byte DATA_PIN4 = 28, byte DATA_PIN5 = 29, byte DATA_PIN6 = 30, byte DATA_PIN7 = 31>
 class COctoWS2811Controller : public CPixelLEDController<RGB_ORDER, 8, 0xFF> {
   OctoWS2811  *pocto;
   uint8_t *drawbuffer,*framebuffer;
 
   void _init(int nLeds) {
-    byte pinList[8] = {24, 25, 26, 27, 28, 29, 30};
+    byte pinList[8] = {DATA_PIN0, DATA_PIN1, DATA_PIN2, DATA_PIN3, DATA_PIN4, DATA_PIN5, DATA_PIN6, DATA_PIN7};
     if(pocto == NULL) {
       drawbuffer = (uint8_t*)malloc(nLeds * 8 * 3);
       framebuffer = (uint8_t*)malloc(nLeds * 8 * 3);

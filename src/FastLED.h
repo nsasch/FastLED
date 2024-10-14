@@ -588,14 +588,14 @@ public:
 	/// Add a OCTOWS2811 based CLEDController instance to the world.
 	/// @see https://www.pjrc.com/teensy/td_libs_OctoWS2811.html
 	/// @see https://github.com/PaulStoffregen/OctoWS2811
-	template<OWS2811 CHIPSET, EOrder RGB_ORDER>
+	template<OWS2811 CHIPSET, EOrder RGB_ORDER, byte DATA_PIN0, byte DATA_PIN1, byte DATA_PIN2, byte DATA_PIN3, byte DATA_PIN4, byte DATA_PIN5, byte DATA_PIN6, byte DATA_PIN7>
 	static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0)
 	{
 		switch(CHIPSET) {
-			case OCTOWS2811: { static COctoWS2811Controller<RGB_ORDER,WS2811_800kHz> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
-			case OCTOWS2811_400: { static COctoWS2811Controller<RGB_ORDER,WS2811_400kHz> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
+			case OCTOWS2811: { static COctoWS2811Controller<RGB_ORDER,WS2811_800kHz, DATA_PIN0, DATA_PIN1, DATA_PIN2, DATA_PIN3, DATA_PIN4, DATA_PIN5, DATA_PIN6, DATA_PIN7> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
+			case OCTOWS2811_400: { static COctoWS2811Controller<RGB_ORDER,WS2811_400kHz, DATA_PIN0, DATA_PIN1, DATA_PIN2, DATA_PIN3, DATA_PIN4, DATA_PIN5, DATA_PIN6, DATA_PIN7> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
 #ifdef WS2813_800kHz
-      case OCTOWS2813: { static COctoWS2811Controller<RGB_ORDER,WS2813_800kHz> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
+      case OCTOWS2813: { static COctoWS2811Controller<RGB_ORDER,WS2813_800kHz, DATA_PIN0, DATA_PIN1, DATA_PIN2, DATA_PIN3, DATA_PIN4, DATA_PIN5, DATA_PIN6, DATA_PIN7> controller; return addLeds(&controller, data, nLedsOrOffset, nLedsIfOffset); }
 #endif
 		}
 	}
@@ -606,7 +606,7 @@ public:
 	template<OWS2811 CHIPSET>
 	static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0)
 	{
-		return addLeds<CHIPSET,GRB>(data,nLedsOrOffset,nLedsIfOffset);
+		return addLeds<CHIPSET,GRB,24,25,26,27,28,29,30,31>(data,nLedsOrOffset,nLedsIfOffset);
 	}
 
 #endif
